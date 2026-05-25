@@ -97,6 +97,35 @@ setup() {
   ! grep -qE "SECRET_KEY_BASE=[a-zA-Z0-9+/]{40}" config/plausible.env.example
 }
 
+@test "Makefile exists at repo root" {
+  [ -f "Makefile" ]
+}
+
+@test "Makefile has install target" {
+  grep -q "^install:" Makefile
+}
+
+@test "Makefile has uninstall target" {
+  grep -q "^uninstall:" Makefile
+}
+
+@test "Makefile has test target" {
+  grep -q "^test:" Makefile
+}
+
+@test "Makefile has start target" {
+  grep -q "^start:" Makefile
+}
+
+@test "Makefile mkdir uses separate calls not brace expansion" {
+  # POSIX sh has no brace expansion — each dir must be explicit
+  ! grep -q "mkdir.*{" Makefile
+}
+
 @test "setup.sh is executable" {
   [ -x "scripts/setup.sh" ]
+}
+
+@test "setup.sh delegates to make install" {
+  grep -q "make" scripts/setup.sh
 }

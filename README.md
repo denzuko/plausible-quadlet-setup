@@ -22,20 +22,27 @@ Follows the established Da Planet Security quadlet model: rootless user service,
 ## Quick start
 
 ```sh
-# 1. Provision ZFS, user, install quadlets
-sudo sh scripts/setup.sh
+# One-liner install from repo
+mdo env NS=$(mktemp -d) REPO="https://github.com/denzuko/plausible-quadlet-setup" PS1="% " sh
+git clone --depth=1 $REPO $NS
+make -C $NS install
+```
 
-# 2. Configure
-cp config/plausible.env.example /srv/plausible/config/plausible.env
-cp config/db.env.example /srv/plausible/config/db.env
-# Edit both files — fill in secrets
+Or clone and run manually:
 
-# 3. Add HAProxy config
-# Append config/haproxy-analytics.cfg to your HAProxy config
+```sh
+git clone https://github.com/denzuko/plausible-quadlet-setup
+cd plausible-quadlet-setup
 
-# 4. Start
-su -s /bin/sh plausible -c 'systemctl --user daemon-reload'
-su -s /bin/sh plausible -c 'systemctl --user start plausible'
+# Provision ZFS, user, install quadlets, stage config templates
+make install
+
+# Edit config — fill in secrets
+$EDITOR /srv/plausible/config/plausible.env
+$EDITOR /srv/plausible/config/db.env
+
+# Add HAProxy snippet then start
+make start
 ```
 
 ## Tests
