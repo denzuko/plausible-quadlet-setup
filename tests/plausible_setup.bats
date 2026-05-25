@@ -66,9 +66,9 @@ EOF
     # Mock: machinectl — records call, executes remainder as sh
     cat > "$MOCK_DIR/machinectl" << EOF
 #!/bin/sh
-# strip 'shell user@ --' prefix, run the rest
+# strip 'shell user@' prefix, run the rest
+# new pattern: machinectl shell user@ /bin/sh -c 'cmd'
 shift 2  # remove 'shell user@'
-shift    # remove '--'
 eval "\$@"
 EOF
 

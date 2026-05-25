@@ -76,8 +76,7 @@ render _preflight
 # ---------------------------------------------------------------------------
 if [ "$PLAUSIBLE_UNINSTALL" = "1" ]; then
     QUADLET_DIR="$(eval echo "~${PLAUSIBLE_USER}/.config/containers/systemd")"
-    machinectl shell "${PLAUSIBLE_USER}@" -- \
-        systemctl --user stop plausible plausible-db plausible-events-db 2>/dev/null || true
+    machinectl shell "${PLAUSIBLE_USER}@" /bin/sh -c 'systemctl --user stop plausible plausible-db plausible-events-db' 2>/dev/null || true
     rm -f \
         "${QUADLET_DIR}/plausible.container" \
         "${QUADLET_DIR}/plausible-db.container" \
@@ -87,8 +86,7 @@ if [ "$PLAUSIBLE_UNINSTALL" = "1" ]; then
         "${QUADLET_DIR}/plausible-db.volume" \
         "${QUADLET_DIR}/plausible-clickhouse.volume" \
         "${QUADLET_DIR}/plausible-clickhouse-logs.volume"
-    machinectl shell "${PLAUSIBLE_USER}@" -- \
-        systemctl --user daemon-reload 2>/dev/null || true
+    machinectl shell "${PLAUSIBLE_USER}@" /bin/sh -c 'systemctl --user daemon-reload' 2>/dev/null || true
     printf '==> Uninstall complete. ZFS datasets retained.\n'
     printf '    Remove manually: zfs destroy -r %s\n' "$DS_CONTAINER"
     exit 0
@@ -169,7 +167,7 @@ chown "${PLAUSIBLE_USER}:${PLAUSIBLE_USER}" \
 # SECTION 9: Reload systemd
 # ---------------------------------------------------------------------------
 printf '==> systemd daemon-reload\n'
-machinectl shell "${PLAUSIBLE_USER}@" -- systemctl --user daemon-reload
+machinectl shell "${PLAUSIBLE_USER}@" /bin/sh -c 'systemctl --user daemon-reload'
 
 # ---------------------------------------------------------------------------
 # SECTION 10: Summary
@@ -182,4 +180,4 @@ printf '\nNext:\n'
 printf '  1. Edit %s/plausible.env — set DATABASE_URL password + SMTP\n' "$QUADLET_DIR"
 printf '  2. Edit %s/db.env — set POSTGRES_PASSWORD\n' "$QUADLET_DIR"
 printf '  3. Add examples/haproxy-plausible.cfg to HAProxy config\n'
-printf '  4. machinectl shell %s@ -- systemctl --user start plausible\n' "$PLAUSIBLE_USER"
+printf '  4. machinectl shell %s@ /bin/sh -c \"systemctl --user start plausible\"\n' "$PLAUSIBLE_USER"

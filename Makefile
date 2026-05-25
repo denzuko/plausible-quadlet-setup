@@ -37,9 +37,7 @@ uninstall:
 	PLAUSIBLE_UNINSTALL=1 sh $(SCRIPT)
 
 status:
-	machinectl shell plausible@ -- \
-	  systemctl --user status plausible plausible-db plausible-events-db || true
+	machinectl shell plausible@ /bin/sh -c 'systemctl --user status plausible plausible-db plausible-events-db' || true
 
 logs:
-	machinectl shell plausible@ -- \
-	  journalctl --user -u plausible.service -f
+	machinectl shell plausible@ /bin/sh -c 'journalctl --user -u plausible.service -f'
