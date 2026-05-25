@@ -14,7 +14,13 @@ Network=plausible.network
 Volume=plausible-db.volume:/var/lib/postgresql/data:Z
 
 DropCapability=ALL
-NoNewPrivileges=true
+# postgres entrypoint needs CHOWN and FOWNER to set up /var/lib/postgresql/data
+# and SETUID to drop to the postgres user. Re-add only what is required.
+AddCapability=CHOWN
+AddCapability=FOWNER
+AddCapability=SETUID
+AddCapability=SETGID
+NoNewPrivileges=false
 
 Label=net.matrix.owner=FC13F74B@matrix.net
 Label=net.matrix.project=plausible-quadlet-setup

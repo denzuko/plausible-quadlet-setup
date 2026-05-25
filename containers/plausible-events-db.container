@@ -14,7 +14,13 @@ Volume=plausible-clickhouse.volume:/var/lib/clickhouse:Z
 Volume=plausible-clickhouse-logs.volume:/var/log/clickhouse-server:Z
 
 DropCapability=ALL
-NoNewPrivileges=true
+# clickhouse entrypoint chowns /var/log/clickhouse-server and /var/lib/clickhouse
+# on startup. Re-add only what is required.
+AddCapability=CHOWN
+AddCapability=FOWNER
+AddCapability=SETUID
+AddCapability=SETGID
+NoNewPrivileges=false
 
 Label=net.matrix.owner=FC13F74B@matrix.net
 Label=net.matrix.project=plausible-quadlet-setup

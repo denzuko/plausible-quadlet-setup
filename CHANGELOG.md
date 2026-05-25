@@ -2,6 +2,16 @@
 
 All notable changes to plausible-quadlet-setup.
 
+## [1.1.3] - 2026-05-25
+
+### Fixed
+- `DropCapability=ALL` + `NoNewPrivileges=true` on postgres and clickhouse
+  containers prevented them from chowning their data/log directories on init.
+  postgres needs CHOWN, FOWNER, SETUID, SETGID to switch to the postgres user.
+  clickhouse needs CHOWN, FOWNER to chown /var/log/clickhouse-server.
+  plausible app container retains full lockdown (DropCapability=ALL,
+  NoNewPrivileges=true) — only the DB containers are relaxed.
+
 ## [1.1.2] - 2026-05-25
 
 ### Fixed
