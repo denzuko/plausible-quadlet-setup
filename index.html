@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>plausible-quadlet-setup</title>
+<style>
+body{font-family:'Share Tech Mono',monospace;background:#111;color:#d1fae5;max-width:640px;margin:3rem auto;padding:0 1.5rem;line-height:1.7}
+h1{font-size:1.4rem;border-bottom:1px dotted rgba(209,250,229,.2);padding-bottom:.5rem}
+pre{background:#0d0d0b;padding:1rem;border-radius:2px;overflow-x:auto;font-size:.85rem}
+a{color:#d1fae5;opacity:.7}
+.meta{opacity:.4;font-size:.85rem}
+</style>
+</head>
+<body>
+<h1>plausible-quadlet-setup</h1>
+<p class="meta">Plausible CE at analytics.dapla.net — rootless Podman quadlet</p>
+
+<h2>Install</h2>
+<pre>curl -fsSL https://denzuko.github.io/plausible-quadlet-setup/plausible_setup.sh | doas sh</pre>
+
+<h2>Or with make</h2>
+<pre>NS=$(mktemp -d)
+git clone --depth=1 https://github.com/denzuko/plausible-quadlet-setup "$NS"
+make -C "$NS" install</pre>
+
+<h2>Requirements</h2>
+<pre>podman >= 4.4  systemd >= 252  ZFS  HAProxy  m4  openssl</pre>
+
+<p><a href="https://github.com/denzuko/plausible-quadlet-setup">github.com/denzuko/plausible-quadlet-setup</a></p>
+</body>
+</html>
