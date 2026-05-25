@@ -24,6 +24,7 @@ make -C "$NS" install
 - systemd ≥ 252
 - ZFS pool named `storage`
 - HAProxy (not Nginx)
+- shadow-utils ≥ 4.6 (for `--add-subuids` / rootless Podman UID mapping)
 - `m4`, `openssl`
 
 ## Stack

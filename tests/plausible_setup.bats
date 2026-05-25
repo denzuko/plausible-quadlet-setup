@@ -250,3 +250,28 @@ EOF
 @test "Makefile has test target" {
     grep -q "^test:" "$REPO_ROOT/Makefile"
 }
+
+# ── Subordinate UID/GID ──────────────────────────────────────────────────────
+@test "installer provisions /etc/subuid via usermod --add-subuids" {
+  grep -q "add-subuids" "$REPO_ROOT/plausible_setup.sh"
+}
+
+@test "installer provisions /etc/subgid via usermod --add-subgids" {
+  grep -q "add-subgids" "$REPO_ROOT/plausible_setup.sh"
+}
+
+@test "installer runs podman system migrate after subuid setup" {
+  grep -q "podman system migrate" "$REPO_ROOT/plausible_setup.sh"
+}
+
+@test "installer checks existing subuid before adding" {
+  grep -q "grep.*subuid" "$REPO_ROOT/plausible_setup.sh"
+}
+
+@test "PLAUSIBLE_SUBUID_START tunable is defined" {
+  grep -q "PLAUSIBLE_SUBUID_START" "$REPO_ROOT/plausible_setup.sh"
+}
+
+@test "preflight checks shadow-utils --add-subuids support" {
+  grep -q "add-subuids.*nobody" "$REPO_ROOT/plausible_setup.sh"
+}

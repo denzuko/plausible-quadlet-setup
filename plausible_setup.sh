@@ -13,7 +13,7 @@
 #
 # Requirements:
 #   openssl, zfs/zpool, podman >= 4.4, systemd >= 252,
-#   machinectl, useradd, loginctl, m4
+#   machinectl, useradd, usermod (shadow-utils >= 4.6), loginctl, m4
 
 set -eu
 
@@ -23,6 +23,12 @@ set -eu
 PLAUSIBLE_USER="${PLAUSIBLE_USER:-plausible}"
 PLAUSIBLE_UID="${PLAUSIBLE_UID:-2010}"
 PLAUSIBLE_VERSION="${PLAUSIBLE_VERSION:-v2.1.4}"
+
+# Subordinate UID/GID range for rootless Podman user namespace mapping.
+# Must not overlap with other users' ranges in /etc/subuid and /etc/subgid.
+PLAUSIBLE_SUBUID_START="${PLAUSIBLE_SUBUID_START:-2000000}"
+PLAUSIBLE_SUBUID_COUNT="${PLAUSIBLE_SUBUID_COUNT:-65536}"
+PLAUSIBLE_SUBUID_END="$((PLAUSIBLE_SUBUID_START + PLAUSIBLE_SUBUID_COUNT - 1))"
 
 ZFS_POOL="${ZFS_POOL:-storage}"
 
@@ -68,6 +74,9 @@ command -v podman  >/dev/null || die "podman not found"
 command -v zfs     >/dev/null || die "zfs not found"
 command -v m4      >/dev/null || die "m4 not found"
 command -v openssl >/dev/null || die "openssl not found"
+# shadow-utils >= 4.6 required for --add-subuids / rootless Podman
+usermod --add-subuids 0-0 nobody 2>/dev/null || \
+    die "usermod does not support --add-subuids; upgrade shadow-utils to >= 4.6"
 
 render _preflight
 
@@ -119,6 +128,33 @@ id "$PLAUSIBLE_USER" >/dev/null 2>&1 || \
 
 chown -R "${PLAUSIBLE_USER}:${PLAUSIBLE_USER}" "$MNT_CONTAINER" "$MNT_USER"
 loginctl enable-linger "$PLAUSIBLE_USER"
+
+# Subordinate UID/GID maps — required for rootless Podman user namespaces.
+# Without these entries in /etc/subuid and /etc/subgid, rootless containers
+# cannot map UIDs inside the container and podman will refuse to run.
+printf '==> Subordinate UID/GID maps\n'
+if ! grep -q "^${PLAUSIBLE_USER}:" /etc/subuid 2>/dev/null; then
+    usermod --add-subuids "${PLAUSIBLE_SUBUID_START}-${PLAUSIBLE_SUBUID_END}" \
+            "$PLAUSIBLE_USER"
+    printf '    Added /etc/subuid: %s:%s:%s\n' \
+        "$PLAUSIBLE_USER" "$PLAUSIBLE_SUBUID_START" "$PLAUSIBLE_SUBUID_COUNT"
+else
+    printf '    /etc/subuid: already configured\n'
+fi
+
+if ! grep -q "^${PLAUSIBLE_USER}:" /etc/subgid 2>/dev/null; then
+    usermod --add-subgids "${PLAUSIBLE_SUBUID_START}-${PLAUSIBLE_SUBUID_END}" \
+            "$PLAUSIBLE_USER"
+    printf '    Added /etc/subgid: %s:%s:%s\n' \
+        "$PLAUSIBLE_USER" "$PLAUSIBLE_SUBUID_START" "$PLAUSIBLE_SUBUID_COUNT"
+else
+    printf '    /etc/subgid: already configured\n'
+fi
+
+# Migrate Podman storage to current UID mapping.
+# Must run after subuid/subgid are configured and after any UID changes.
+printf '==> podman system migrate\n'
+machinectl shell "${PLAUSIBLE_USER}@" /bin/sh -c 'podman system migrate'
 
 QUADLET_DIR="$(eval echo "~${PLAUSIBLE_USER}/.config/containers/systemd")"
 mkdir -p "$QUADLET_DIR"

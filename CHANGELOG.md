@@ -2,6 +2,25 @@
 
 All notable changes to plausible-quadlet-setup.
 
+## [1.1.2] - 2026-05-25
+
+### Fixed
+- `/etc/subuid` and `/etc/subgid` not provisioned — hard dependency for
+  rootless Podman user namespace mapping. Without these entries Podman
+  refuses to start rootless containers.
+
+### Added
+- SECTION 6 now calls `usermod --add-subuids` / `--add-subgids` for the
+  service account if entries are not already present
+- `podman system migrate` called after subuid/subgid setup to rewrite
+  storage config to current UID mapping
+- `PLAUSIBLE_SUBUID_START` / `PLAUSIBLE_SUBUID_COUNT` tunables (default
+  2000000 / 65536) — override if range conflicts with existing users
+- Preflight now validates `usermod --add-subuids` is supported
+  (shadow-utils ≥ 4.6 required)
+- 6 new bats assertions covering subuid/subgid/migrate behaviour
+- README requirements updated: shadow-utils ≥ 4.6 added
+
 ## [1.1.0] - 2026-05-25
 
 ### Changed
