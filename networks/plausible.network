@@ -1,4 +1,7 @@
-# plausible.network — isolated bridge network for Plausible stack
+# networks/plausible.network
+
+[Unit]
+Description=Isolated bridge network for Plausible stack
 
 [Network]
 NetworkName=plausible

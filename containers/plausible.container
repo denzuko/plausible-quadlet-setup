@@ -1,12 +1,6 @@
-# plausible.container — Podman quadlet for Plausible CE
-# net.matrix label schema: owner FC13F74B@matrix.net
-#
-# Prerequisites:
-#   zfs create storage/containers/plausible  (mountpoint /srv/plausible)
-#   zfs create storage/users/plausible       (mountpoint /var/lib/plausible)
-#   useradd -r -d /var/lib/plausible plausible
-#   loginctl enable-linger plausible
-#   Install quadlets to ~/.config/containers/systemd/
+# containers/plausible.container
+# Plausible CE analytics — rootless Podman quadlet
+# Installs to %h/.config/containers/systemd/
 
 [Unit]
 Description=Plausible CE analytics
@@ -20,11 +14,14 @@ Requires=plausible-events-db.service
 [Container]
 Image=ghcr.io/plausible/community-edition:v2.1.4
 ContainerName=plausible
-EnvironmentFile=/srv/plausible/config/plausible.env
+EnvironmentFile=%h/.config/containers/systemd/plausible.env
 Network=plausible.network
 
-Volume=/srv/plausible/data:/var/lib/plausible:Z
+Volume=plausible-data.volume:/var/lib/plausible:Z
 PublishPort=127.0.0.1:8000:8000
+
+DropCapability=ALL
+NoNewPrivileges=true
 
 Label=net.matrix.owner=FC13F74B@matrix.net
 Label=net.matrix.project=plausible-quadlet-setup

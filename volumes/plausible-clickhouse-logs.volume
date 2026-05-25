@@ -1,0 +1,9 @@
+# volumes/plausible-clickhouse-logs.volume
+
+[Unit]
+Description=Plausible plausible-clickhouse-logs volume
+
+[Volume]
+VolumeName=plausible-clickhouse-logs
+Label=net.matrix.owner=FC13F74B@matrix.net
+Label=net.matrix.project=plausible-quadlet-setup

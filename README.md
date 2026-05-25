@@ -1,73 +1,74 @@
 # plausible-quadlet-setup
 
-Podman quadlet for [Plausible Community Edition](https://plausible.io/docs/self-hosting) at `analytics.dapla.net`.
+Rootless Podman quadlet for [Plausible CE](https://plausible.io/docs/self-hosting)
+at `analytics.dapla.net`. Follows the `fts-quadlet-setup` / `pbx-quadlet-setup`
+conventions exactly.
 
-Follows the established Da Planet Security quadlet model: rootless user service, ZFS volumes, HAProxy reverse proxy, net.matrix labels.
+## Install
+
+```sh
+curl -fsSL https://denzuko.github.io/plausible-quadlet-setup/plausible_setup.sh | doas sh
+```
+
+Or with make:
+
+```sh
+NS=$(mktemp -d)
+git clone --depth=1 https://github.com/denzuko/plausible-quadlet-setup "$NS"
+make -C "$NS" install
+```
+
+## Requirements
+
+- Podman ≥ 4.4
+- systemd ≥ 252
+- ZFS pool named `storage`
+- HAProxy (not Nginx)
+- `m4`, `openssl`
 
 ## Stack
 
-| Service | Image | Port |
-|---|---|---|
-| Plausible CE | `ghcr.io/plausible/community-edition:v2.1.4` | `127.0.0.1:8000` |
-| PostgreSQL | `postgres:16-alpine` | internal |
-| ClickHouse | `clickhouse/clickhouse-server:24.3.3.102-alpine` | internal |
+| Service | Image |
+|---|---|
+| Plausible CE | `ghcr.io/plausible/community-edition:v2.1.4` |
+| PostgreSQL | `docker.io/postgres:16-alpine` |
+| ClickHouse | `docker.io/clickhouse/clickhouse-server:24.3` |
 
-## Prerequisites
+> Note: postgres and clickhouse have no GHCR mirror — docker.io is used
+> for these two only.
 
-- Podman 4.4+ with quadlet support
-- ZFS pool named `storage`
-- HAProxy (not Nginx)
-- Rootless systemd services with linger
+## After install
 
-## Quick start
+1. Edit `~plausible/.config/containers/systemd/plausible.env`
+   — set `DATABASE_URL` password, `SMTP_*` values
+2. Edit `~plausible/.config/containers/systemd/db.env`
+   — set `POSTGRES_PASSWORD`
+3. Add `examples/haproxy-plausible.cfg` snippet to HAProxy config
+4. `machinectl shell plausible@ -- systemctl --user start plausible`
 
-```sh
-# One-liner install from repo
-mdo env NS=$(mktemp -d) REPO="https://github.com/denzuko/plausible-quadlet-setup" PS1="% " sh
-git clone --depth=1 $REPO $NS
-make -C $NS install
+## ZFS layout
+
 ```
-
-Or clone and run manually:
-
-```sh
-git clone https://github.com/denzuko/plausible-quadlet-setup
-cd plausible-quadlet-setup
-
-# Provision ZFS, user, install quadlets, stage config templates
-make install
-
-# Edit config — fill in secrets
-$EDITOR /srv/plausible/config/plausible.env
-$EDITOR /srv/plausible/config/db.env
-
-# Add HAProxy snippet then start
-make start
+storage/containers/plausible  → /srv/plausible   (data, volumes)
+storage/users/plausible       → /var/lib/plausible
 ```
 
 ## Tests
 
 ```sh
-bats tests/plausible.bats
+make test
 ```
 
-29 assertions covering: quadlet files, net.matrix labels, network isolation, port binding (localhost only), ZFS volume paths, restart policy, config templates, HAProxy config.
+## Environment variables
 
-## ZFS layout
-
-```
-storage/containers/plausible  → /srv/plausible
-  ├── data/          Plausible app data
-  ├── db/            PostgreSQL data
-  ├── clickhouse/    ClickHouse data
-  ├── clickhouse-logs/
-  └── config/        plausible.env, db.env (not committed)
-
-storage/users/plausible       → /var/lib/plausible
-```
+| Variable | Default | Purpose |
+|---|---|---|
+| `PLAUSIBLE_USER` | `plausible` | Service account name |
+| `PLAUSIBLE_UID` | `2010` | Service account UID |
+| `PLAUSIBLE_VERSION` | `v2.1.4` | Version tag for ZFS snapshot |
+| `ZFS_POOL` | `storage` | ZFS pool name |
+| `PLAUSIBLE_UNINSTALL` | `0` | Set to `1` to uninstall |
 
 ## Versioning
 
-Semver. MAJOR = breaking API/interface change. MINOR = new capability. PATCH = everything else.
-
-Current: v1.0.0
+Semver. MAJOR = breaking interface change. MINOR = new capability. PATCH = fixes.

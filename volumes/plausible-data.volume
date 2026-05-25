@@ -1,0 +1,9 @@
+# volumes/plausible-data.volume
+
+[Unit]
+Description=Plausible plausible-data volume
+
+[Volume]
+VolumeName=plausible-data
+Label=net.matrix.owner=FC13F74B@matrix.net
+Label=net.matrix.project=plausible-quadlet-setup

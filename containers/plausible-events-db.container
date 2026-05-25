@@ -1,0 +1,27 @@
+# containers/plausible-events-db.container
+# ClickHouse for Plausible CE event storage — rootless Podman quadlet
+
+[Unit]
+Description=Plausible ClickHouse
+After=network-online.target
+
+[Container]
+Image=docker.io/clickhouse/clickhouse-server:24.3.3.102-alpine
+ContainerName=plausible-events-db
+Network=plausible.network
+
+Volume=plausible-clickhouse.volume:/var/lib/clickhouse:Z
+Volume=plausible-clickhouse-logs.volume:/var/log/clickhouse-server:Z
+
+DropCapability=ALL
+NoNewPrivileges=true
+
+Label=net.matrix.owner=FC13F74B@matrix.net
+Label=net.matrix.project=plausible-quadlet-setup
+
+[Service]
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
