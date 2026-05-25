@@ -1,0 +1,23 @@
+# plausible-db.container — PostgreSQL for Plausible CE
+
+[Unit]
+Description=Plausible PostgreSQL
+After=network-online.target
+
+[Container]
+Image=postgres:16-alpine
+ContainerName=plausible-db
+EnvironmentFile=/srv/plausible/config/db.env
+Network=plausible.network
+
+Volume=/srv/plausible/db:/var/lib/postgresql/data:Z
+
+Label=net.matrix.owner=FC13F74B@matrix.net
+Label=net.matrix.project=plausible-quadlet-setup
+
+[Service]
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

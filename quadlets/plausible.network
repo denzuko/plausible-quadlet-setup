@@ -1,0 +1,7 @@
+# plausible.network — isolated bridge network for Plausible stack
+
+[Network]
+NetworkName=plausible
+Driver=bridge
+Label=net.matrix.owner=FC13F74B@matrix.net
+Label=net.matrix.project=plausible-quadlet-setup
