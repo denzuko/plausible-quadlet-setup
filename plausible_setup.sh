@@ -160,7 +160,36 @@ QUADLET_DIR="$(eval echo "~${PLAUSIBLE_USER}/.config/containers/systemd")"
 mkdir -p "$QUADLET_DIR"
 
 # ---------------------------------------------------------------------------
-# SECTION 7: Quadlet units
+# SECTION 7: Volumes
+# ---------------------------------------------------------------------------
+# Create named volumes explicitly NOW — after subuid is configured and
+# podman system migrate has run. Volumes created implicitly on first container
+# start may be owned by root on the host if UID mapping was not yet active.
+# Use podman unshare to chown inside the user namespace so the container
+# processes (postgres uid=999, clickhouse uid=101, plausible uid=1000)
+# can write to their volumes.
+printf '==> Named volumes\n'
+machinectl shell "${PLAUSIBLE_USER}@" /bin/sh -c '
+    podman volume create plausible-data          2>/dev/null || true
+    podman volume create plausible-db            2>/dev/null || true
+    podman volume create plausible-clickhouse    2>/dev/null || true
+    podman volume create plausible-clickhouse-logs 2>/dev/null || true
+
+    # chown inside user namespace so container UIDs can write
+    # postgres runs as uid=999, clickhouse as uid=101, plausible as uid=1000
+    podman unshare chown -R 999:999 \
+        $(podman volume inspect plausible-db --format "{{.Mountpoint}}")
+    podman unshare chown -R 101:101 \
+        $(podman volume inspect plausible-clickhouse --format "{{.Mountpoint}}")
+    podman unshare chown -R 101:101 \
+        $(podman volume inspect plausible-clickhouse-logs --format "{{.Mountpoint}}")
+    podman unshare chown -R 1000:1000 \
+        $(podman volume inspect plausible-data --format "{{.Mountpoint}}")
+
+    echo "Volumes ready"'
+
+# ---------------------------------------------------------------------------
+# SECTION 8: Quadlet units
 # ---------------------------------------------------------------------------
 printf '==> Quadlet units\n'
 for f in \
@@ -177,7 +206,7 @@ done
 chown -R "${PLAUSIBLE_USER}:${PLAUSIBLE_USER}" "$QUADLET_DIR"
 
 # ---------------------------------------------------------------------------
-# SECTION 8: Environment files
+# SECTION 9: Environment files
 # ---------------------------------------------------------------------------
 printf '==> Environment\n'
 SECRET=$(openssl rand -base64 64 | tr -d '\n')
@@ -200,13 +229,13 @@ chown "${PLAUSIBLE_USER}:${PLAUSIBLE_USER}" \
     "${QUADLET_DIR}/db.env"
 
 # ---------------------------------------------------------------------------
-# SECTION 9: Reload systemd
+# SECTION 10: Reload systemd
 # ---------------------------------------------------------------------------
 printf '==> systemd daemon-reload\n'
 machinectl shell "${PLAUSIBLE_USER}@" /bin/sh -c 'systemctl --user daemon-reload'
 
 # ---------------------------------------------------------------------------
-# SECTION 10: Summary
+# SECTION 11: Summary
 # ---------------------------------------------------------------------------
 render _header
 render _endpoints

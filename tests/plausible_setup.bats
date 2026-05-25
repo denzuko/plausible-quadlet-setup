@@ -279,3 +279,24 @@ EOF
 @test "preflight checks shadow-utils --add-subuids support" {
   grep -q "add-subuids.*nobody" "$REPO_ROOT/plausible_setup.sh"
 }
+
+# ── Volume ownership ─────────────────────────────────────────────────────────
+@test "installer creates plausible-db volume explicitly" {
+  grep -q "volume create plausible-db" "$REPO_ROOT/plausible_setup.sh"
+}
+
+@test "installer chowns volumes inside user namespace via podman unshare" {
+  grep -q "podman unshare chown" "$REPO_ROOT/plausible_setup.sh"
+}
+
+@test "installer chowns plausible-db to uid 999 (postgres)" {
+  grep -q "999:999" "$REPO_ROOT/plausible_setup.sh"
+}
+
+@test "installer chowns plausible-clickhouse to uid 101 (clickhouse)" {
+  grep -q "101:101" "$REPO_ROOT/plausible_setup.sh"
+}
+
+@test "installer chowns plausible-data to uid 1000 (plausible app)" {
+  grep -q "1000:1000" "$REPO_ROOT/plausible_setup.sh"
+}

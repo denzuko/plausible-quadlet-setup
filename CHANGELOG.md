@@ -2,6 +2,24 @@
 
 All notable changes to plausible-quadlet-setup.
 
+## [1.1.4] - 2026-05-25
+
+### Fixed
+- Named volumes created implicitly by Podman on first container start were
+  owned by root on the host when subuid was not yet configured at volume
+  creation time. postgres (uid=999) and clickhouse (uid=101) could not
+  write to their volumes: `find: /var/lib/postgresql/data: Permission denied`
+
+### Added
+- SECTION 7: explicit volume creation via `podman volume create` after
+  `podman system migrate` — volumes now exist with correct UID mapping active
+- `podman unshare chown` for each volume to set ownership to the container
+  process UID inside the user namespace:
+  - plausible-db → 999:999 (postgres)
+  - plausible-clickhouse, plausible-clickhouse-logs → 101:101 (clickhouse)
+  - plausible-data → 1000:1000 (plausible app)
+- 5 new bats assertions covering volume creation and ownership
+
 ## [1.1.3] - 2026-05-25
 
 ### Fixed
