@@ -159,16 +159,16 @@ EOF
     grep -q "NoNewPrivileges=true" "$REPO_ROOT/containers/plausible.container"
 }
 
-@test "plausible-db.container drops all but re-adds CHOWN FOWNER SETUID SETGID" {
-    grep -q "DropCapability=ALL" "$REPO_ROOT/containers/plausible-db.container"
-    grep -q "AddCapability=CHOWN" "$REPO_ROOT/containers/plausible-db.container"
-    grep -q "AddCapability=SETUID" "$REPO_ROOT/containers/plausible-db.container"
+@test "plausible-db.container does not use DropCapability (broken on some Podman versions)" {
+    # DropCapability=ALL generates --cap-drop all (lowercase) which Podman
+    # misparses as an image name. DB containers use default cap set instead.
+    ! grep -q "^DropCapability" "$REPO_ROOT/containers/plausible-db.container"
+    ! grep -q "^AddCapability"  "$REPO_ROOT/containers/plausible-db.container"
 }
 
-@test "plausible-events-db.container drops all but re-adds CHOWN FOWNER SETUID SETGID" {
-    grep -q "DropCapability=ALL" "$REPO_ROOT/containers/plausible-events-db.container"
-    grep -q "AddCapability=CHOWN" "$REPO_ROOT/containers/plausible-events-db.container"
-    grep -q "AddCapability=SETUID" "$REPO_ROOT/containers/plausible-events-db.container"
+@test "plausible-events-db.container does not use DropCapability" {
+    ! grep -q "^DropCapability" "$REPO_ROOT/containers/plausible-events-db.container"
+    ! grep -q "^AddCapability"  "$REPO_ROOT/containers/plausible-events-db.container"
 }
 
 @test "all volume mounts use :Z SELinux label" {

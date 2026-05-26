@@ -2,6 +2,26 @@
 
 All notable changes to plausible-quadlet-setup.
 
+## [1.1.5] - 2026-05-25
+
+### Fixed
+- `DropCapability=ALL` combined with `AddCapability=` in quadlet units
+  generates `--cap-drop all` (lowercase, space-separated) on some Podman
+  versions. Podman misparses `all` as a container image name and tries to
+  pull `docker.io/library/all:latest`.
+
+  Root cause: quadlet generator lowercases the value and uses space
+  separation instead of `--cap-drop=ALL`.
+
+  Fix: removed `DropCapability=ALL` and `AddCapability=*` from
+  `plausible-db.container` and `plausible-events-db.container`.
+  Rootless Podman already excludes dangerous capabilities. postgres and
+  clickhouse need CHOWN, FOWNER, SETUID, SETGID — all present in the
+  default container capability set without any explicit grant.
+
+  `plausible.container` retains `DropCapability=ALL` + `NoNewPrivileges=true`
+  since the app container needs no capabilities at all.
+
 ## [1.1.4] - 2026-05-25
 
 ### Fixed
