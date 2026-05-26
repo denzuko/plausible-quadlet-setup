@@ -2,6 +2,13 @@
 
 All notable changes to plausible-quadlet-setup.
 
+## [1.2.0] - 2026-05-25
+
+### Changed
+- Plausible CE updated to v3.2.1 (was v2.1.4)
+  amd64 digest: sha256:7450d9df4bfce160541d65bdba6bd4bcdd9a6db07f13dde91060705fa242c650
+  index digest: sha256:33e60bfb40f2df5da00f8753b76fad04f67dba3abe6d73eb516e440e3fb62985
+
 ## [1.1.9] - 2026-05-25
 
 ### Fixed

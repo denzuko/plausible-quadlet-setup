@@ -22,7 +22,7 @@ set -eu
 # ---------------------------------------------------------------------------
 PLAUSIBLE_USER="${PLAUSIBLE_USER:-plausible}"
 PLAUSIBLE_UID="${PLAUSIBLE_UID:-2010}"
-PLAUSIBLE_VERSION="${PLAUSIBLE_VERSION:-v2.1.4}"
+PLAUSIBLE_VERSION="${PLAUSIBLE_VERSION:-v3.2.1}"
 
 # Subordinate UID/GID range for rootless Podman user namespace mapping.
 # Must not overlap with other users' ranges in /etc/subuid and /etc/subgid.
