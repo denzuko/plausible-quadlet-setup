@@ -1,4 +1,12 @@
 <clickhouse>
+    <!-- mark_cache_size: reduced from default 5GB for memory-constrained hosts -->
     <!-- https://clickhouse.com/docs/en/operations/server-configuration-parameters/settings#mark_cache_size -->
-    <mark_cache_size>524288000</mark_cache_size>
+    <mark_cache_size>536870912</mark_cache_size>
+
+    <!-- max_server_memory_usage: hard cap at 4GB — leaves room for postgres + plausible -->
+    <!-- https://clickhouse.com/docs/en/operations/server-configuration-parameters/settings#max_server_memory_usage -->
+    <max_server_memory_usage>4294967296</max_server_memory_usage>
+
+    <!-- max_server_memory_usage_to_ram_ratio: 0.5 as backstop -->
+    <max_server_memory_usage_to_ram_ratio>0.5</max_server_memory_usage_to_ram_ratio>
 </clickhouse>

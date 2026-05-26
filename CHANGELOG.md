@@ -2,6 +2,19 @@
 
 All notable changes to plausible-quadlet-setup.
 
+## [1.2.2] - 2026-05-25
+
+### Changed
+- ClickHouse config bind-mounted from ZFS dataset (/srv/plausible/etc/clickhouse/)
+  instead of quadlet config dir. Tunable from host without container rebuild.
+
+### Fixed
+- low-resources.xml tuned for memory-constrained hosts (~16GB RAM, swap pressure):
+  - max_server_memory_usage: 4GB hard cap
+  - max_server_memory_usage_to_ram_ratio: 0.5
+  - mark_cache_size: 512MB
+  Without these limits ClickHouse will OOM on hosts with <2GB free RAM.
+
 ## [1.2.1] - 2026-05-25
 
 ### Changed

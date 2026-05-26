@@ -208,18 +208,25 @@ chown -R "${PLAUSIBLE_USER}:${PLAUSIBLE_USER}" "$QUADLET_DIR"
 # ---------------------------------------------------------------------------
 # ClickHouse config files
 # ---------------------------------------------------------------------------
-# Plausible v3.x requires specific ClickHouse profile and resource settings.
-# These are mounted read-only into the container at /etc/clickhouse-server/config.d/
+# Required for Plausible v3.x — profile settings changed in v3.2.0.
+# Bind-mounted from ZFS dataset so they are tunable from the host
+# without container rebuild. Edit /srv/plausible/etc/clickhouse/*.xml
+# then: systemctl --user restart plausible-events-db
 printf '==> ClickHouse config\n'
-mkdir -p "${QUADLET_DIR}/clickhouse"
+mkdir -p "${MNT_CONTAINER}/etc/clickhouse"
 for f in \
     clickhouse/low-resources.xml \
     clickhouse/default-profile-low-resources-overrides.xml \
     clickhouse/ipv4-only.xml \
     clickhouse/logs.xml; do
-    install -m 0644 "${SCRIPT_DIR}/${f}" "${QUADLET_DIR}/clickhouse/$(basename "$f")"
+    install -m 0644 "${SCRIPT_DIR}/${f}" \
+        "${MNT_CONTAINER}/etc/clickhouse/$(basename "$f")"
 done
-chown -R "${PLAUSIBLE_USER}:${PLAUSIBLE_USER}" "${QUADLET_DIR}/clickhouse"
+# ClickHouse runs as uid=101 inside the container
+machinectl shell "${PLAUSIBLE_USER}@" /bin/sh -c \
+    "podman unshare chown -R 101:101 \
+        \$(podman volume inspect plausible-clickhouse --format '{{.Mountpoint}}' 2>/dev/null || echo /dev/null)"
+chown -R "${PLAUSIBLE_USER}:${PLAUSIBLE_USER}" "${MNT_CONTAINER}/etc/clickhouse"
 
 # ---------------------------------------------------------------------------
 # SECTION 9: Environment files
