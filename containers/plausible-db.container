@@ -13,10 +13,10 @@ Network=plausible.network
 
 Volume=plausible-db.volume:/var/lib/postgresql/data:Z
 
-# Note: DropCapability=ALL with AddCapability generates --cap-drop all (lowercase)
-# which Podman misparses as an image name on some versions. Omitted intentionally.
-# Rootless Podman already runs without privileged caps. postgres needs CHOWN,
-# FOWNER, SETUID, SETGID — all present in the default cap set.
+# Space-separated on one line — multiple AddCapability= lines also valid
+# DropCapability=ALL must be uppercase; value is passed verbatim to --cap-drop
+DropCapability=ALL
+AddCapability=CHOWN FOWNER SETUID SETGID
 NoNewPrivileges=false
 
 Label=net.matrix.owner=FC13F74B@matrix.net

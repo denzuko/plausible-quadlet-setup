@@ -2,6 +2,20 @@
 
 All notable changes to plausible-quadlet-setup.
 
+## [1.1.6] - 2026-05-25
+
+### Fixed
+- v1.1.5 incorrectly removed DropCapability/AddCapability from DB containers.
+  Root cause was wrong syntax, not the feature itself.
+
+  Correct quadlet syntax (Podman 5.x):
+  - `DropCapability=ALL` — value must be uppercase ALL, passed verbatim to --cap-drop
+  - `AddCapability=CHOWN FOWNER SETUID SETGID` — space-separated on one line
+
+  Previous broken form: multiple `AddCapability=CAP` lines with `DropCapability=ALL`
+  was generating `--cap-drop all` (lowercase) causing Podman to interpret `all`
+  as a container image name.
+
 ## [1.1.5] - 2026-05-25
 
 ### Fixed
