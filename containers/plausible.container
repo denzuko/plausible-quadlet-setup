@@ -1,10 +1,14 @@
 # containers/plausible.container
 # Plausible CE analytics — rootless Podman quadlet
 #
-# Image pinned to:
-#   tag:    ghcr.io/plausible/community-edition:v2.1.4
-#   digest: sha256:4c2553516d09e3c7b1b9c39cca04a04c28c871f525adc8dbb7a2a8a20fed0857
-# Update: check https://github.com/plausible/community-edition/releases
+# Image pinned to tag + digest:
+#   ghcr.io/plausible/community-edition:v2.1.4
+#   sha256:4c2553516d09e3c7b1b9c39cca04a04c28c871f525adc8dbb7a2a8a20fed0857
+#
+# Dependency graph:
+#   BindsTo= — if DB units stop, plausible stops and restarts when they return
+#   Requires= — systemd will start the DBs when plausible starts
+#   After= — enforces start ordering: DBs must be active before plausible starts
 
 [Unit]
 Description=Plausible CE analytics
@@ -14,6 +18,8 @@ After=plausible-db.service
 After=plausible-events-db.service
 Requires=plausible-db.service
 Requires=plausible-events-db.service
+BindsTo=plausible-db.service
+BindsTo=plausible-events-db.service
 
 [Container]
 Image=ghcr.io/plausible/community-edition:v2.1.4@sha256:4c2553516d09e3c7b1b9c39cca04a04c28c871f525adc8dbb7a2a8a20fed0857

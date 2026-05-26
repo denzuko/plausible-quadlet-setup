@@ -2,6 +2,22 @@
 
 All notable changes to plausible-quadlet-setup.
 
+## [1.1.8] - 2026-05-25
+
+### Fixed
+- `DropCapability=ALL` definitively confirmed as a Podman 5.4.x quadlet generator
+  bug — value is lowercased to `all` in the generated `--cap-drop all` flag
+  regardless of unit file casing. Removed from DB containers permanently.
+  Documented with note to revisit when upstream fixes the generator.
+  (plausible app container unaffected — it uses DropCapability=ALL + NoNewPrivileges=true
+  which generates correctly because NoNewPrivileges is processed differently)
+
+- Dependency restart propagation: plausible did not restart when DB services
+  recovered because `Requires=` only stops dependents, it does not restart them.
+  Added `BindsTo=plausible-db.service` and `BindsTo=plausible-events-db.service`
+  to plausible.container. BindsTo causes plausible to stop when a DB stops and
+  restart when the DB returns (combined with Restart=always).
+
 ## [1.1.7] - 2026-05-25
 
 ### Security

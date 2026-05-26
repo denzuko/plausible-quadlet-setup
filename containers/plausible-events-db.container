@@ -1,10 +1,11 @@
 # containers/plausible-events-db.container
 # ClickHouse for Plausible CE event storage — rootless Podman quadlet
 #
-# Image pinned to:
-#   tag:    docker.io/clickhouse/clickhouse-server:24.3.3.102-alpine
-#   digest: sha256:8312f0ee358cbe122d78f9753ea0eb851355383d17c2a94df664f384757e141a (amd64)
-# Update: check https://hub.docker.com/r/clickhouse/clickhouse-server/tags
+# Image pinned to tag + digest:
+#   docker.io/clickhouse/clickhouse-server:24.3.3.102-alpine
+#   sha256:8312f0ee358cbe122d78f9753ea0eb851355383d17c2a94df664f384757e141a (amd64)
+#
+# Note: same DropCapability lowercasing bug as plausible-db. Omitted.
 
 [Unit]
 Description=Plausible ClickHouse
@@ -17,10 +18,6 @@ Network=plausible.network
 
 Volume=plausible-clickhouse.volume:/var/lib/clickhouse:Z
 Volume=plausible-clickhouse-logs.volume:/var/log/clickhouse-server:Z
-
-DropCapability=ALL
-AddCapability=CHOWN FOWNER SETUID SETGID
-NoNewPrivileges=false
 
 Label=net.matrix.owner=FC13F74B@matrix.net
 Label=net.matrix.project=plausible-quadlet-setup

@@ -1,11 +1,15 @@
 # containers/plausible-db.container
 # PostgreSQL 16 for Plausible CE — rootless Podman quadlet
 #
-# Image pinned to:
-#   tag:    docker.io/postgres:16-alpine3.23
-#   digest: sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229
-# Verify: podman image inspect docker.io/postgres:16-alpine3.23@sha256:16bc17c...
-# Update: check https://hub.docker.com/_/postgres/tags and repeg on minor releases
+# Image pinned to tag + digest:
+#   docker.io/postgres:16-alpine3.23
+#   sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229
+#
+# Note: DropCapability=ALL in Podman 5.4.x quadlet generates --cap-drop all
+# (lowercase) which is passed verbatim to the OCI runtime and silently ignored
+# or mishandled. Capability restriction omitted — rootless Podman already
+# constrains the ambient capability set. Revisit when Podman fixes the
+# lowercasing bug in the quadlet generator.
 
 [Unit]
 Description=Plausible PostgreSQL
@@ -18,10 +22,6 @@ EnvironmentFile=%h/.config/containers/systemd/db.env
 Network=plausible.network
 
 Volume=plausible-db.volume:/var/lib/postgresql/data:Z
-
-DropCapability=ALL
-AddCapability=CHOWN FOWNER SETUID SETGID
-NoNewPrivileges=false
 
 Label=net.matrix.owner=FC13F74B@matrix.net
 Label=net.matrix.project=plausible-quadlet-setup
