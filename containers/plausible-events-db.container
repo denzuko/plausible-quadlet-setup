@@ -1,23 +1,33 @@
 # containers/plausible-events-db.container
 # ClickHouse for Plausible CE event storage — rootless Podman quadlet
 #
-# Image pinned to tag + digest:
-#   docker.io/clickhouse/clickhouse-server:24.3.3.102-alpine
-#   sha256:8312f0ee358cbe122d78f9753ea0eb851355383d17c2a94df664f384757e141a (amd64)
+# Image pinned to tag + platform-specific digest (linux/amd64):
+#   docker.io/clickhouse/clickhouse-server:24.12-alpine
+#   sha256:58a8168a0a17a5694172cbe89b8d3f1f6c9a91182260c98e299e87da1b0d0d0b
 #
-# Note: same DropCapability lowercasing bug as plausible-db. Omitted.
+# Config files from plausible/community-edition:v3.2.1 clickhouse/ directory
+# mounted at /etc/clickhouse-server/config.d/ — required for v3.x compatibility.
+# Note: DropCapability=ALL omitted — Podman 5.4.x quadlet lowercases ALL.
 
 [Unit]
 Description=Plausible ClickHouse
 After=network-online.target
 
 [Container]
-Image=docker.io/clickhouse/clickhouse-server:24.3.3.102-alpine@sha256:8312f0ee358cbe122d78f9753ea0eb851355383d17c2a94df664f384757e141a
+Image=docker.io/clickhouse/clickhouse-server:24.12-alpine@sha256:58a8168a0a17a5694172cbe89b8d3f1f6c9a91182260c98e299e87da1b0d0d0b
 ContainerName=plausible-events-db
 Network=plausible.network
 
 Volume=plausible-clickhouse.volume:/var/lib/clickhouse:Z
 Volume=plausible-clickhouse-logs.volume:/var/log/clickhouse-server:Z
+
+# ClickHouse config from plausible/community-edition:v3.2.1
+# These files live in clickhouse/ in this repo — installer copies them to
+# %h/.config/containers/systemd/clickhouse/
+Volume=%h/.config/containers/systemd/clickhouse/low-resources.xml:/etc/clickhouse-server/config.d/low-resources.xml:ro
+Volume=%h/.config/containers/systemd/clickhouse/default-profile-low-resources-overrides.xml:/etc/clickhouse-server/config.d/default-profile-low-resources-overrides.xml:ro
+Volume=%h/.config/containers/systemd/clickhouse/ipv4-only.xml:/etc/clickhouse-server/config.d/ipv4-only.xml:ro
+Volume=%h/.config/containers/systemd/clickhouse/logs.xml:/etc/clickhouse-server/config.d/logs.xml:ro
 
 Label=net.matrix.owner=FC13F74B@matrix.net
 Label=net.matrix.project=plausible-quadlet-setup

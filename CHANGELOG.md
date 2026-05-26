@@ -2,6 +2,23 @@
 
 All notable changes to plausible-quadlet-setup.
 
+## [1.2.1] - 2026-05-25
+
+### Changed
+- ClickHouse updated: 24.3.3.102-alpine → 24.12-alpine
+  (matches plausible/community-edition:v3.2.1 compose.yml exactly)
+  amd64 digest: sha256:58a8168a0a17a5694172cbe89b8d3f1f6c9a91182260c98e299e87da1b0d0d0b
+
+### Added
+- ClickHouse config files from plausible/community-edition:v3.2.1 clickhouse/
+  Required for v3.x — profile settings changed in v3.2.0:
+  - clickhouse/low-resources.xml
+  - clickhouse/default-profile-low-resources-overrides.xml
+  - clickhouse/ipv4-only.xml
+  - clickhouse/logs.xml
+  Mounted read-only at /etc/clickhouse-server/config.d/
+  Installer copies to %h/.config/containers/systemd/clickhouse/
+
 ## [1.2.0] - 2026-05-25
 
 ### Changed

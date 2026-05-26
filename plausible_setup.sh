@@ -206,6 +206,22 @@ done
 chown -R "${PLAUSIBLE_USER}:${PLAUSIBLE_USER}" "$QUADLET_DIR"
 
 # ---------------------------------------------------------------------------
+# ClickHouse config files
+# ---------------------------------------------------------------------------
+# Plausible v3.x requires specific ClickHouse profile and resource settings.
+# These are mounted read-only into the container at /etc/clickhouse-server/config.d/
+printf '==> ClickHouse config\n'
+mkdir -p "${QUADLET_DIR}/clickhouse"
+for f in \
+    clickhouse/low-resources.xml \
+    clickhouse/default-profile-low-resources-overrides.xml \
+    clickhouse/ipv4-only.xml \
+    clickhouse/logs.xml; do
+    install -m 0644 "${SCRIPT_DIR}/${f}" "${QUADLET_DIR}/clickhouse/$(basename "$f")"
+done
+chown -R "${PLAUSIBLE_USER}:${PLAUSIBLE_USER}" "${QUADLET_DIR}/clickhouse"
+
+# ---------------------------------------------------------------------------
 # SECTION 9: Environment files
 # ---------------------------------------------------------------------------
 printf '==> Environment\n'
