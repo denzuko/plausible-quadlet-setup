@@ -2,6 +2,21 @@
 
 All notable changes to plausible-quadlet-setup.
 
+## [1.1.9] - 2026-05-25
+
+### Fixed
+- Plausible image digest was the OCI image index (multi-arch manifest list)
+  digest, not the platform-specific manifest digest. Podman 5.x rejects
+  index digests with "invalid checksum digest length" (the error message
+  truncates the digest in output — the value in the file was correct).
+
+  Wrong (OCI index): sha256:4c2553516d09e3c7b1b9c39cca04a04c28c871f525adc8dbb7a2a8a20fed0857
+  Correct (amd64):   sha256:59ffee982deb849a2749eef206005e475e688d59fa053858d75420d95cddb8e8
+
+  To get the correct platform digest:
+    skopeo inspect --raw docker://ghcr.io/plausible/community-edition:v2.1.4 | \
+      python3 -c "import sys,json; [print(m['digest']) for m in json.load(sys.stdin)['manifests'] if m.get('platform',{}).get('architecture')=='amd64']"
+
 ## [1.1.8] - 2026-05-25
 
 ### Fixed

@@ -1,9 +1,15 @@
 # containers/plausible.container
 # Plausible CE analytics — rootless Podman quadlet
 #
+# Image pinned to tag + platform-specific digest (linux/amd64).
+# Use platform manifest digest, NOT the OCI image index digest.
+# Podman 5.x rejects index digests with "invalid checksum digest length".
+# To get: skopeo inspect --raw docker://ghcr.io/plausible/community-edition:v2.1.4 | python3 -c "import sys,json; [print(m['digest']) for m in json.load(sys.stdin)['manifests'] if m.get('platform',{}).get('architecture')=='amd64']"
+#
 # Image pinned to tag + digest:
 #   ghcr.io/plausible/community-edition:v2.1.4
-#   sha256:4c2553516d09e3c7b1b9c39cca04a04c28c871f525adc8dbb7a2a8a20fed0857
+#   sha256:59ffee982deb849a2749eef206005e475e688d59fa053858d75420d95cddb8e8 (linux/amd64 platform manifest)
+#   index: sha256:4c2553516d09e3c7b1b9c39cca04a04c28c871f525adc8dbb7a2a8a20fed0857 (do not use — OCI index digest rejected by Podman 5.x)
 #
 # Dependency graph:
 #   BindsTo= — if DB units stop, plausible stops and restarts when they return
@@ -22,7 +28,7 @@ BindsTo=plausible-db.service
 BindsTo=plausible-events-db.service
 
 [Container]
-Image=ghcr.io/plausible/community-edition:v2.1.4@sha256:4c2553516d09e3c7b1b9c39cca04a04c28c871f525adc8dbb7a2a8a20fed0857
+Image=ghcr.io/plausible/community-edition:v2.1.4@sha256:59ffee982deb849a2749eef206005e475e688d59fa053858d75420d95cddb8e8
 ContainerName=plausible
 EnvironmentFile=%h/.config/containers/systemd/plausible.env
 Network=plausible.network
