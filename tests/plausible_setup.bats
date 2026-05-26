@@ -304,3 +304,20 @@ EOF
 @test "installer chowns plausible-data to uid 1000 (plausible app)" {
   grep -q "1000:1000" "$REPO_ROOT/plausible_setup.sh"
 }
+
+# ── Image digest pinning ──────────────────────────────────────────────────────
+@test "plausible.container image is pinned to digest" {
+  grep -q "@sha256:" "$REPO_ROOT/containers/plausible.container"
+}
+
+@test "plausible-db.container image is pinned to digest" {
+  grep -q "@sha256:" "$REPO_ROOT/containers/plausible-db.container"
+}
+
+@test "plausible-events-db.container image is pinned to digest" {
+  grep -q "@sha256:" "$REPO_ROOT/containers/plausible-events-db.container"
+}
+
+@test "plausible-db.container uses versioned alpine tag not floating" {
+  grep -q "16-alpine3\." "$REPO_ROOT/containers/plausible-db.container"
+}

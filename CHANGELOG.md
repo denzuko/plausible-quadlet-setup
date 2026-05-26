@@ -2,6 +2,17 @@
 
 All notable changes to plausible-quadlet-setup.
 
+## [1.1.7] - 2026-05-25
+
+### Security
+- All container images pinned to tag + SHA256 digest — prevents supply chain
+  attacks via tag mutation (e.g. compromised :latest or floating alpine tags)
+  - postgres: 16-alpine3.23@sha256:16bc17c6...
+  - clickhouse: 24.3.3.102-alpine@sha256:8312f0ee... (amd64)
+  - plausible: v2.1.4@sha256:4c255351...
+- plausible-db now uses versioned alpine tag (16-alpine3.23) not floating
+  (16-alpine) — ensures reproducible pulls
+
 ## [1.1.6] - 2026-05-25
 
 ### Fixed

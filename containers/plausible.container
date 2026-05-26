@@ -1,6 +1,10 @@
 # containers/plausible.container
 # Plausible CE analytics — rootless Podman quadlet
-# Installs to %h/.config/containers/systemd/
+#
+# Image pinned to:
+#   tag:    ghcr.io/plausible/community-edition:v2.1.4
+#   digest: sha256:4c2553516d09e3c7b1b9c39cca04a04c28c871f525adc8dbb7a2a8a20fed0857
+# Update: check https://github.com/plausible/community-edition/releases
 
 [Unit]
 Description=Plausible CE analytics
@@ -12,7 +16,7 @@ Requires=plausible-db.service
 Requires=plausible-events-db.service
 
 [Container]
-Image=ghcr.io/plausible/community-edition:v2.1.4
+Image=ghcr.io/plausible/community-edition:v2.1.4@sha256:4c2553516d09e3c7b1b9c39cca04a04c28c871f525adc8dbb7a2a8a20fed0857
 ContainerName=plausible
 EnvironmentFile=%h/.config/containers/systemd/plausible.env
 Network=plausible.network

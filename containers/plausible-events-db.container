@@ -1,12 +1,17 @@
 # containers/plausible-events-db.container
 # ClickHouse for Plausible CE event storage — rootless Podman quadlet
+#
+# Image pinned to:
+#   tag:    docker.io/clickhouse/clickhouse-server:24.3.3.102-alpine
+#   digest: sha256:8312f0ee358cbe122d78f9753ea0eb851355383d17c2a94df664f384757e141a (amd64)
+# Update: check https://hub.docker.com/r/clickhouse/clickhouse-server/tags
 
 [Unit]
 Description=Plausible ClickHouse
 After=network-online.target
 
 [Container]
-Image=docker.io/clickhouse/clickhouse-server:24.3.3.102-alpine
+Image=docker.io/clickhouse/clickhouse-server:24.3.3.102-alpine@sha256:8312f0ee358cbe122d78f9753ea0eb851355383d17c2a94df664f384757e141a
 ContainerName=plausible-events-db
 Network=plausible.network
 

@@ -1,20 +1,24 @@
 # containers/plausible-db.container
 # PostgreSQL 16 for Plausible CE — rootless Podman quadlet
+#
+# Image pinned to:
+#   tag:    docker.io/postgres:16-alpine3.23
+#   digest: sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229
+# Verify: podman image inspect docker.io/postgres:16-alpine3.23@sha256:16bc17c...
+# Update: check https://hub.docker.com/_/postgres/tags and repeg on minor releases
 
 [Unit]
 Description=Plausible PostgreSQL
 After=network-online.target
 
 [Container]
-Image=docker.io/postgres:16-alpine
+Image=docker.io/postgres:16-alpine3.23@sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229
 ContainerName=plausible-db
 EnvironmentFile=%h/.config/containers/systemd/db.env
 Network=plausible.network
 
 Volume=plausible-db.volume:/var/lib/postgresql/data:Z
 
-# Space-separated on one line — multiple AddCapability= lines also valid
-# DropCapability=ALL must be uppercase; value is passed verbatim to --cap-drop
 DropCapability=ALL
 AddCapability=CHOWN FOWNER SETUID SETGID
 NoNewPrivileges=false
